@@ -1,0 +1,1 @@
+# booksync-front
