@@ -26,8 +26,7 @@ async function login(event) {
     if (!res.ok) {
       const err = await res.json();
       showMessage(err.msg || 'Erro ao fazer login', true);
-      return;
-    }
+      return; }
 
     const data = await res.json();
     localStorage.setItem('token', data.access_token);
