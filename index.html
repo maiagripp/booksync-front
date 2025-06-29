@@ -1,103 +1,100 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BookSync</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="#/" id="nav-home" class="nav-logo">
+          <img src="images/logo.png" alt="BookSync" />
+        </a>
+        <div class="nav-actions">
+          <a href="#/dashboard" id="dashboard-link" class="nav-link hidden">Dashboard</a>
+          <a href="#/search" id="search-link" class="nav-link hidden">Buscar livros</a>
+          <a href="#" id="nav-logout" class="btn-logout hidden">Sair</a>
+        </div>
+      </nav>
+    </header>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BookSync</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
-</head>
+    <main>
+      <section id="home-view" class="view">
+        <h1>Bem-vindo ao BookSync 📚</h1>
+        <p>Gerencie seus livros com facilidade.</p>
+        <button id="home-cta">Comece agora</button>
+      </section>
 
-<body>
-  <header>
-    <nav>
-      <img src="images/logo.png" alt="BookSync Logo" class="logo" />
-      <div class="nav-links">
-        <a href="#/" id="nav-home">Home</a>
-        <a href="#/login" id="nav-login">Login</a>
-        <a href="#/register" id="nav-register">Cadastro</a>
-        <a href="#/dashboard" id="dashboard-link" class="hidden">Dashboard</a>
-        <a href="#" id="nav-logout" class="hidden">Deslogar</a>
+      <section id="login-view" class="view hidden">
+        <h2>Login</h2>
+        <form id="login-form">
+          <input type="email" id="login-email" placeholder="Email" required />
+          <input type="password" id="login-password" placeholder="Senha" required />
+          <button type="submit">Entrar</button>
+        </form>
+        <p style="margin-top: 1rem;">Não tem uma conta? <a href="#/register">Cadastre-se aqui</a></p>
+      </section>
+
+      <section id="register-view" class="view hidden">
+        <h2>Cadastro</h2>
+        <form id="register-form">
+          <input type="email" id="register-email" placeholder="Email" required />
+          <input type="password" id="register-password" placeholder="Senha" required />
+          <button type="submit">Cadastrar</button>
+        </form>
+        <p style="margin-top: 1rem;">Já tem uma conta? <a href="#/login">Faça login</a></p>
+      </section>
+
+      <section id="dashboard-view" class="view hidden">
+        <h2>Meus livros avaliados</h2>
+        <div id="book-list" class="book-list"></div>
+      </section>
+
+      <section id="search-view" class="view hidden">
+        <h2>Buscar livros</h2>
+        <form id="search-form">
+          <input type="text" id="search-query" placeholder="Buscar livros..." />
+          <button type="submit">Buscar</button>
+        </form>
+        <div id="search-results"></div>
+      </section>
+    </main>
+
+    <!-- Modal Avaliação -->
+    <div id="rating-modal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Avalie o livro</h3>
+        <form id="rating-form">
+          <label>Nota:</label>
+          <div id="star-rating" class="star-container">
+            <span class="star" data-value="1">★</span>
+            <span class="star" data-value="2">★</span>
+            <span class="star" data-value="3">★</span>
+            <span class="star" data-value="4">★</span>
+            <span class="star" data-value="5">★</span>
+          </div>
+          <input type="hidden" id="rating-score" name="rating" required />
+
+          <label for="rating-comment">Comentário:</label>
+          <textarea id="rating-comment" name="comment" rows="3" required></textarea>
+
+          <label for="rating-status">Status:</label>
+          <select id="rating-status" name="status" required>
+            <option value="">Selecione</option>
+            <option value="lido">Lido</option>
+            <option value="lendo">Lendo</option>
+          </select>
+
+          <div class="modal-buttons">
+            <button type="submit">Salvar</button>
+            <button type="button" id="rating-cancel">Cancelar</button>
+          </div>
+        </form>
       </div>
-    </nav>
-    </nav>
-  </header>
-
-  <main>
-    <section id="home-view" class="view">
-      Bem-vindo ao BookSync 📚<br />Gerencie seus livros lidos e lendo com
-      facilidade.
-    </section>
-
-    <section id="login-view" class="view hidden">
-      <h2>Login</h2>
-      <form id="login-form">
-        <input type="email" id="login-email" placeholder="Email" required />
-        <input type="password" id="login-password" placeholder="Senha" required />
-        <button type="submit">Entrar</button>
-      </form>
-    </section>
-
-    <section id="register-view" class="view hidden">
-      <h2>Cadastro</h2>
-      <form id="register-form">
-        <input type="email" id="register-email" placeholder="Email" required />
-        <input type="password" id="register-password" placeholder="Senha" required />
-        <button type="submit">Cadastrar</button>
-      </form>
-    </section>
-
-    <section id="dashboard-view" class="view hidden">
-      <h2>Dashboard</h2>
-      <form id="search-form">
-        <input type="text" id="search-query" placeholder="Buscar livros..." />
-        <button type="submit">Buscar</button>
-      </form>
-      <div id="search-results"></div>
-      <div id="book-list" class="book-list"></div>
-    </section>
-  </main>
-
-  <!-- Modal Avaliação -->
-  <div id="rating-modal" class="modal hidden">
-    <div class="modal-content">
-      <h3>Avalie o livro</h3>
-      <form id="rating-form">
-        <label>Nota (1 a 5):</label>
-        <div id="star-rating" class="star-rating">
-          <span data-value="1" class="star">&#9733;</span>
-          <span data-value="2" class="star">&#9733;</span>
-          <span data-value="3" class="star">&#9733;</span>
-          <span data-value="4" class="star">&#9733;</span>
-          <span data-value="5" class="star">&#9733;</span>
-        </div>
-        <input type="hidden" id="rating-score" name="rating" required />
-
-
-        <label for="rating-comment">Comentário:</label>
-        <textarea id="rating-comment" name="comment" rows="3" required></textarea>
-
-        <label for="rating-status">Status:</label>
-        <select id="rating-status" name="status" required>
-          <option value="">Selecione</option>
-          <option value="lido">Lido</option>
-          <option value="lendo">Lendo</option>
-        </select>
-
-        <div class="modal-buttons">
-          <button type="submit">Salvar</button>
-          <button type="button" id="rating-cancel">Cancelar</button>
-        </div>
-      </form>
     </div>
-  </div>
 
-  <script src="app.js"></script>
-</body>
-
+    <script src="app.js"></script>
+  </body>
 </html>

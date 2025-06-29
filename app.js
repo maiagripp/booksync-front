@@ -1,216 +1,258 @@
-const apiBaseUrl = 'http://127.0.0.1:5000/api';
+const apiBaseUrl = "http://127.0.0.1:5000/api";
+
+let currentBookToSave = null;
+let editingBookId = null;
 
 function updateLinkVisibility() {
-  const dashboardLink = document.getElementById('dashboard-link');
-  const loginLink = document.getElementById('nav-login');
-  const registerLink = document.getElementById('nav-register');
-  const logout = document.getElementById('nav-logout');
-  const token = localStorage.getItem('token');
+  const dashboardLink = document.getElementById("dashboard-link");
+  const searchLink = document.getElementById("search-link");
+  const logoutButton = document.getElementById("nav-logout");
+  const token = localStorage.getItem("token");
 
   if (token) {
-    dashboardLink.classList.remove('hidden');
-    loginLink.classList.add('hidden');
-    registerLink.classList.add('hidden');
-    logout.classList.remove('hidden');
+    dashboardLink.classList.remove("hidden");
+    searchLink.classList.remove("hidden");
+    logoutButton.classList.remove("hidden");
   } else {
-    dashboardLink.classList.add('hidden');
-    loginLink.classList.remove('hidden');
-    registerLink.classList.remove('hidden');
-    logout.classList.add('hidden');
+    dashboardLink.classList.add("hidden");
+    searchLink.classList.add("hidden");
+    logoutButton.classList.add("hidden");
   }
 }
 
-document.getElementById('nav-logout').addEventListener('click', (e) => {
-  e.preventDefault(); 
-  localStorage.removeItem('token');
-  updateLinkVisibility();
-  route('home');
-});
+function highlightActiveNav() {
+  const path = window.location.hash.replace(/^#\/?/, "") || "home";
+  document.querySelectorAll("nav a.nav-link").forEach((link) => {
+    const hrefPath = link.getAttribute("href").replace(/^#\/?/, "") || "home";
+    if (hrefPath === path) {
+      link.classList.add("active");
+    } else {
+      link.classList.remove("active");
+    }
+  });
+}
 
 function route(path) {
-  const cleanPath = path.replace(/^#\/?/, '');
-  console.log(`Roteando para: ${cleanPath}`);
-  document.querySelectorAll('.view').forEach(view => view.classList.add('hidden'));
-  const targetView = document.getElementById(cleanPath + '-view');
+  const cleanPath = path.replace(/^#\/?/, "") || "home";
+  document
+    .querySelectorAll(".view")
+    .forEach((view) => view.classList.add("hidden"));
+  const targetView = document.getElementById(cleanPath + "-view");
   if (targetView) {
-    targetView.classList.remove('hidden');
-    window.location.hash = cleanPath;
+    targetView.classList.remove("hidden");
+    if (
+      window.location.hash !== `#${cleanPath}` &&
+      window.location.hash !== `#/${cleanPath}`
+    ) {
+      window.location.hash = cleanPath;
+    }
     updateLinkVisibility();
+    highlightActiveNav();
+
+    if (cleanPath === "dashboard") {
+      loadBooks();
+    } else if (cleanPath === "search") {
+      document.getElementById("search-query").value = "";
+      document.getElementById("search-results").innerHTML = "";
+    }
   } else {
     console.error(`View not found for path: ${cleanPath}`);
   }
 }
 
-window.addEventListener('load', () => {
-  const hash = window.location.hash.replace(/^#\/?/, '') || 'home';
+window.addEventListener("load", () => {
+  const hash = window.location.hash.replace(/^#\/?/, "") || "home";
   route(hash);
 });
 
-window.addEventListener('hashchange', () => {
-  const path = window.location.hash.replace(/^#\/?/, '') || 'home';
+window.addEventListener("hashchange", () => {
+  const path = window.location.hash.replace(/^#\/?/, "") || "home";
   route(path);
 });
 
+document.getElementById("nav-logout").addEventListener("click", () => {
+  localStorage.removeItem("token");
+  updateLinkVisibility();
+  route("home");
+});
+
+document.getElementById("home-cta").addEventListener("click", () => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    route("dashboard");
+  } else {
+    route("login");
+  }
+});
+
 // Cadastro
-document.getElementById('register-form').addEventListener('submit', async (e) => {
+const registerForm = document.getElementById("register-form");
+registerForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const body = {
-    email: document.getElementById('register-email').value,
-    password: document.getElementById('register-password').value,
+    email: document.getElementById("register-email").value,
+    password: document.getElementById("register-password").value,
   };
 
   const res = await fetch(`${apiBaseUrl}/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
 
   const data = await res.json();
   if (res.ok) {
     alert(data.message);
-    route('login');
+    route("login");
   } else {
-    alert(data.message || 'Erro ao registrar');
+    alert(data.message || "Erro ao registrar");
   }
 });
 
 // Login
-document.getElementById('login-form').addEventListener('submit', async (e) => {
+const loginForm = document.getElementById("login-form");
+loginForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const body = {
-    email: document.getElementById('login-email').value,
-    password: document.getElementById('login-password').value,
+    email: document.getElementById("login-email").value,
+    password: document.getElementById("login-password").value,
   };
 
   const res = await fetch(`${apiBaseUrl}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
 
   const data = await res.json();
   if (res.ok) {
-    localStorage.setItem('token', data.access_token);
-    route('dashboard');
-    loadBooks();
+    localStorage.setItem("token", data.access_token);
+    route("dashboard");
   } else {
-    alert(data.message || 'Erro ao fazer login');
+    alert(data.message || "Erro ao fazer login");
   }
 });
 
 // Buscar livros
-document.getElementById('search-form').addEventListener('submit', async (e) => {
+const searchForm = document.getElementById("search-form");
+searchForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const query = document.getElementById('search-query').value;
-  const res = await fetch(`${apiBaseUrl}/user/books/search?query=${encodeURIComponent(query)}`, {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
+  const query = document.getElementById("search-query").value;
+  if (!query.trim()) {
+    alert("Digite um termo para busca.");
+    return;
+  }
+  const res = await fetch(
+    `${apiBaseUrl}/user/books/search?query=${encodeURIComponent(query)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     }
-  });
+  );
   const data = await res.json();
 
-  const results = document.getElementById('search-results');
-  results.innerHTML = '';
+  const results = document.getElementById("search-results");
+  results.innerHTML = "";
 
   if (data.items && data.items.length > 0) {
-    data.items.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'book-card';
+    data.items.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "book-card";
       card.innerHTML = `
         <h4>${item.volumeInfo.title}</h4>
-        <p>${item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Autor desconhecido'}</p>
-        <img src="${item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : 'https://via.placeholder.com/128x192'}" alt="${item.volumeInfo.title}" />
-        <br>
-        <button onclick="saveBook('${item.id}', '${item.volumeInfo.title.replace(/'/g, "\\'")}')">Ver livro</button>
+        <p>${
+          item.volumeInfo.authors
+            ? item.volumeInfo.authors.join(", ")
+            : "Autor desconhecido"
+        }</p>
+        <img src="${
+          item.volumeInfo.imageLinks
+            ? item.volumeInfo.imageLinks.thumbnail
+            : "https://via.placeholder.com/100"
+        }" alt="${item.volumeInfo.title}" />
+        <button onclick="saveBook('${
+          item.id
+        }', '${item.volumeInfo.title.replace(
+        /'/g,
+        "\\'"
+      )}')">Avaliar livro</button>
       `;
       results.appendChild(card);
     });
   } else {
-    results.innerHTML = '<p>Nenhum livro encontrado.</p>';
+    results.innerHTML = "<p>Nenhum livro encontrado.</p>";
   }
 });
 
-let currentBookToSave = null;
-
-async function saveBook(googleId, title) {
+function saveBook(googleId, title) {
   currentBookToSave = { googleId, title };
+  editingBookId = null;
   showRatingModal(title);
 }
 
 function showRatingModal(title) {
-  const modal = document.getElementById('rating-modal');
-  modal.classList.remove('hidden');
-  modal.querySelector('h3').textContent = `Avalie "${title}"`;
-  ratingInput.value = '';
-  updateStars(0);
-  document.getElementById('rating-comment').value = '';
-  document.getElementById('rating-status').value = '';
+  const modal = document.getElementById("rating-modal");
+  modal.classList.remove("hidden");
+  modal.querySelector("h3").textContent = `Avalie o livro: "${title}"`;
+  document.getElementById("rating-score").value = "";
+  document.getElementById("rating-comment").value = "";
+  document.getElementById("rating-status").value = "";
+
+  document.querySelectorAll("#star-rating .star").forEach((star) => {
+    star.classList.remove("selected", "hovered");
+  });
 }
 
-document.getElementById('rating-cancel').addEventListener('click', () => {
-  document.getElementById('rating-modal').classList.add('hidden');
+document.getElementById("rating-cancel").addEventListener("click", () => {
+  document.getElementById("rating-modal").classList.add("hidden");
   currentBookToSave = null;
+  editingBookId = null;
 });
 
-const stars = document.querySelectorAll('#star-rating .star');
-const ratingInput = document.getElementById('rating-score');
-
-stars.forEach(star => {
-  star.addEventListener('click', () => {
-    const value = parseInt(star.getAttribute('data-value'));
-    ratingInput.value = value;
-    updateStars(value);
+// Estrelas
+const stars = document.querySelectorAll("#star-rating .star");
+stars.forEach((star) => {
+  star.addEventListener("mouseenter", () => {
+    const val = parseInt(star.dataset.value);
+    stars.forEach((s) =>
+      s.classList.toggle("hovered", parseInt(s.dataset.value) <= val)
+    );
   });
-
-  star.addEventListener('mouseover', () => {
-    const value = parseInt(star.getAttribute('data-value'));
-    highlightStars(value);
+  star.addEventListener("mouseleave", () => {
+    stars.forEach((s) => s.classList.remove("hovered"));
   });
-
-  star.addEventListener('mouseout', () => {
-    highlightStars(parseInt(ratingInput.value) || 0);
+  star.addEventListener("click", () => {
+    const val = parseInt(star.dataset.value);
+    document.getElementById("rating-score").value = val;
+    stars.forEach((s) => {
+      s.classList.toggle("selected", parseInt(s.dataset.value) <= val);
+    });
   });
 });
 
-function updateStars(rating) {
-  stars.forEach(star => {
-    const starValue = parseInt(star.getAttribute('data-value'));
-    if (starValue <= rating) {
-      star.classList.add('selected');
-    } else {
-      star.classList.remove('selected');
-    }
-  });
-}
-
-function highlightStars(rating) {
-  stars.forEach(star => {
-    const starValue = parseInt(star.getAttribute('data-value'));
-    if (starValue <= rating) {
-      star.style.color = 'gold';
-    } else {
-      star.style.color = '#ccc';
-    }
-  });
-}
-
-document.getElementById('rating-form').addEventListener('submit', async (e) => {
+document.getElementById("rating-form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const rating = parseInt(document.getElementById('rating-score').value);
-  const comment = document.getElementById('rating-comment').value.trim();
-  const status = document.getElementById('rating-status').value;
+  const rating = parseInt(document.getElementById("rating-score").value);
+  const comment = document.getElementById("rating-comment").value.trim();
+  const status = document.getElementById("rating-status").value;
+  const token = localStorage.getItem("token");
 
-  if (!currentBookToSave) {
-    alert('Nenhum livro selecionado para avaliação.');
+  const googleId = currentBookToSave?.googleId || editingBookId;
+  if (!googleId) {
+    alert("Nenhum livro selecionado para avaliação.");
     return;
   }
 
-  const res = await fetch(`${apiBaseUrl}/user/books/${currentBookToSave.googleId}`, {
-    method: 'POST',
+  const url = `${apiBaseUrl}/user/books/${googleId}`;
+  const method = currentBookToSave ? "POST" : "PUT";
+
+  const res = await fetch(url, {
+    method,
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ rating, comment, status }),
   });
@@ -218,26 +260,137 @@ document.getElementById('rating-form').addEventListener('submit', async (e) => {
   const data = await res.json();
   alert(data.message);
 
-  document.getElementById('rating-modal').classList.add('hidden');
+  document.getElementById("rating-modal").classList.add("hidden");
   currentBookToSave = null;
-  loadBooks();
+  editingBookId = null;
+  route("dashboard");
 });
 
-// Carregar livros salvos (exemplo simples, você pode implementar a rota real)
 async function loadBooks() {
-  // TODO: implementar chamada real para backend e renderizar livros
-  // Por enquanto exemplo estático para visualização:
-  const bookList = document.getElementById('book-list');
-  bookList.innerHTML = `
-    <div class="book-card">
-      <h4>Exemplo de Livro Salvo</h4>
-      <p>Autor Exemplo</p>
-      <p>Status: Lido</p>
-      <p>Nota: 5</p>
-      <p>Comentário: Excelente livro!</p>
-    </div>
-  `;
+  const res = await fetch(`${apiBaseUrl}/user/books`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+
+  const data = await res.json();
+  const bookList = document.getElementById("book-list");
+  bookList.innerHTML = "";
+
+  if (data.books && data.books.length > 0) {
+    data.books.forEach((book) => {
+      const starsHtml = Array(5)
+        .fill(0)
+        .map((_, i) => {
+          return i < book.rating ? "★" : "☆";
+        })
+        .join("");
+
+      const card = document.createElement("div");
+      card.className = "book-card";
+
+      card.innerHTML = `
+  <h4>${book.title}</h4>
+  <img src="${book.image || "https://via.placeholder.com/100"}" alt="${
+        book.title
+      }" />
+  <p>Status: <span class="status-text ${book.status}">${book.status}</span> 
+    <button class="btn-change-status" data-id="${
+      book.google_id
+    }" data-status="${book.status}">Alterar status</button>
+  </p>
+  <p>Nota: <span style="color: #FFD700; font-size: 1.2rem;">${starsHtml}</span></p>
+  <p>Comentário: ${book.comment}</p>
+  <div class="book-card-buttons">
+    <button class="btn-edit" data-id="${book.google_id}">Editar</button>
+    <button class="btn-delete" data-id="${book.google_id}">Excluir</button>
+  </div>
+`;
+
+      bookList.appendChild(card);
+    });
+
+    document.querySelectorAll(".btn-edit").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const id = e.target.dataset.id;
+        editBookReview(id);
+      });
+    });
+    document.querySelectorAll(".btn-delete").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const id = e.target.dataset.id;
+        if (confirm("Tem certeza que quer excluir essa avaliação?")) {
+          deleteBookReview(id);
+        }
+      });
+    });
+    document.querySelectorAll(".btn-change-status").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const id = e.target.dataset.id;
+        const currentStatus = e.target.dataset.status;
+        toggleBookStatus(id, currentStatus);
+      });
+    });
+  } else {
+    bookList.innerHTML = "<p>Nenhum livro salvo ainda.</p>";
+  }
 }
 
-// Atualiza visibilidade do link dashboard quando a página muda, logo após carregar a página
+async function editBookReview(googleId) {
+  editingBookId = googleId;
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${apiBaseUrl}/user/books`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  const book = data.books.find((b) => b.google_id === googleId);
+
+  if (!book) {
+    alert("Livro não encontrado para edição");
+    return;
+  }
+
+  currentBookToSave = null;
+
+  showRatingModal(book.title);
+  document.getElementById("rating-score").value = book.rating;
+  document.getElementById("rating-comment").value = book.comment;
+  document.getElementById("rating-status").value = book.status;
+
+  const stars = document.querySelectorAll("#star-rating .star");
+  stars.forEach((s) => {
+    const val = parseInt(s.dataset.value);
+    s.classList.toggle("selected", val <= book.rating);
+  });
+}
+
+async function deleteBookReview(googleId) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${apiBaseUrl}/user/books/${googleId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  alert(data.message);
+  loadBooks();
+}
+
+async function toggleBookStatus(googleId, currentStatus) {
+  const token = localStorage.getItem("token");
+  const newStatus = currentStatus === "lido" ? "lendo" : "lido";
+
+  const res = await fetch(`${apiBaseUrl}/user/books/${googleId}/status`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ status: newStatus }),
+  });
+  const data = await res.json();
+  alert(data.message);
+  loadBooks();
+}
+
 updateLinkVisibility();
+highlightActiveNav();

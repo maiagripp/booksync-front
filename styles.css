@@ -1,3 +1,4 @@
+/* === Base === */
 body {
   font-family: 'Lato', sans-serif;
   background-color: #586BA4;
@@ -6,6 +7,7 @@ body {
   padding: 0;
 }
 
+/* === Header e Navbar === */
 header {
   background-color: #F76C5E;
   color: #fff;
@@ -13,66 +15,125 @@ header {
   text-align: center;
 }
 
-header nav {
+nav {
   display: flex;
-  align-items: center;    
-  justify-content: space-between; 
+  align-items: center;
+  justify-content: center;
   gap: 1rem;
-  padding: 0 1rem;
+  flex-wrap: wrap;
+  background-color: #f76c5e;
+  padding: 2rem 1rem;
+  border-radius: 8px;
+  position: relative;
 }
 
-nav .nav-links {
+.nav-logo {
+  position: absolute;
+  left: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.nav-logo img {
+  height: 100px;
+  object-fit: contain;
+}
+
+.nav-actions {
+  position: absolute;
+  right: 1rem;
   display: flex;
   gap: 1rem;
   align-items: center;
 }
 
-.logo {
-  width: 100px;  
-  height: auto;
-}
-
-nav a {
+.nav-link {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  border-radius: 25px;
+  background-color: transparent;
   color: white;
+  font-weight: 600;
   text-decoration: none;
-  font-weight: bold;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border: 2px solid transparent;
+  cursor: pointer;
+  user-select: none;
 }
 
-nav a:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+.nav-link:hover {
+  background-color: rgba(255 255 255 / 0.2);
 }
 
-a {
-  text-decoration: none;
+.nav-link.active {
+  background-color: white;
+  color: #f76c5e;
+  border-color: white;
+  font-weight: 700;
 }
 
-a:hover {
-  text-decoration: underline;
-  font-weight: bold;
+.btn-logout {
+  background-color: transparent;
+  border: 2px solid white;
+  color: white;
+  border-radius: 25px;
+  padding: 0.5rem 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-a:visited{
-  color: #2c2c2c;
+.btn-logout:hover {
+  background-color: white;
+  color: #f76c5e;
+  border-color: white;
 }
 
+/* === Conteúdo principal === */
 main {
   padding: 2rem;
-  max-width: 800px;
+  max-width: 700px;
   margin: 0 auto;
+  text-align: center;
+}
+
+.view {
+  margin-top: 3rem;
 }
 
 .hidden {
   display: none;
 }
 
+/* === Botões === */
+button {
+  background-color: #F5DD90;
+  color: #000;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+button:hover {
+  background-color: #e6cc60;
+}
+
+/* === Formulários === */
 form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   margin-top: 1rem;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
 }
 
 input[type="text"],
@@ -84,73 +145,109 @@ select {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
 }
 
-button {
-  background-color: #F5DD90;
-  color: #000;
-  border: none;
-  padding: 0.75rem;
-  margin-bottom: 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-#nav-logout{
-  background:none; 
-  border:none; 
-  color:white; 
-  cursor:pointer; 
-}
-
-button:hover {
-  background-color: #F68E5F;
-}
-
-nav {
-  margin-top: 2rem;
+/* === Estrelas === */
+.star-container {
   display: flex;
-  gap: 1rem;
+  gap: 8px;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
-
-.logo {
-  width: 100px;
-  height: auto;
-  vertical-align: middle;
+.star {
+  color: #ccc;
+  transition: color 0.2s ease;
 }
 
+.star.hovered,
+.star.selected {
+  color: #FFD700;
+}
+
+/* === Livros === */
 .book-list {
   margin-top: 2rem;
+  text-align: left;
 }
 
 .book-card {
   background-color: white;
+  color: black;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  color: #2c2c2c;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .book-card h4 {
   margin-top: 0;
 }
 
-.book-card button {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  font-weight: normal;
-  background-color: #F68E5F;
+.book-card p {
+  margin: 0.3rem 0;
 }
 
-.book-card button:hover {
-  background-color: #F5DD90;
+.book-card img {
+  max-width: 100px;
+  margin-bottom: 0.5rem;
 }
 
-/* Modal */
+/* Botões dentro do card do livro */
+.book-card-buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.book-card-buttons button {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: none;
+  background-color: #f76c5e;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.book-card-buttons button:hover {
+  background-color: #d6544f;
+}
+
+/* Botão mudar status */
+.btn-change-status {
+  margin-left: 10px;
+  padding: 2px 8px;
+  font-size: 0.85rem;
+  border-radius: 15px;
+  border: none;
+  background-color: #586BA4;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-change-status:hover {
+  background-color: #45567d;
+}
+
+.status-text.lendo {
+  color: #f76c5e; 
+  font-weight: bold;
+}
+
+.status-text.lido {
+  color: #007BFF; 
+  font-weight: bold;
+}
+
+/* === Modal === */
 .modal {
   position: fixed;
   top: 0;
@@ -172,9 +269,10 @@ nav {
   background: white;
   padding: 20px;
   border-radius: 6px;
-  width: 300px;
+  width: 320px;
   box-shadow: 0 0 10px #00000066;
-  color: #2c2c2c;
+  color: black;
+  text-align: left;
 }
 
 .modal-content h3 {
@@ -202,20 +300,5 @@ nav {
 
 .modal-buttons button {
   margin-left: 10px;
+  padding: 0.5rem 1rem;
 }
-
-.star-rating {
-  display: flex;
-  gap: 5px;
-  font-size: 2rem;
-  cursor: pointer;
-  user-select: none;
-  color: #ccc;
-}
-
-.star-rating .star.selected,
-.star-rating .star:hover,
-.star-rating .star:hover ~ .star {
-  color: gold;
-}
-
