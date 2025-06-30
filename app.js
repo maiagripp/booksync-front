@@ -2,94 +2,116 @@ const apiBaseUrl = "http://127.0.0.1:5000/api";
 
 let currentBookToSave = null;
 let editingBookId = null;
+let currentUsername = null;
+
+function isTokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const exp = payload.exp * 1000;
+    return Date.now() > exp;
+  } catch (e) {
+    return true;
+  }
+}
+
+function checkAndHandleToken() {
+  const token = localStorage.getItem("token");
+  if (token && isTokenExpired(token)) {
+    localStorage.removeItem("token");
+    currentUsername = null;
+    alert("Sua sessão expirou. Faça login novamente.");
+    route("login");
+    return true;
+  }
+  return false;
+}
 
 function updateLinkVisibility() {
   const dashboardLink = document.getElementById("dashboard-link");
   const searchLink = document.getElementById("search-link");
   const logoutButton = document.getElementById("nav-logout");
   const token = localStorage.getItem("token");
+  const path = window.location.hash.replace(/^#\/?/, "") || "home";
 
-  if (token) {
-    dashboardLink.classList.remove("hidden");
-    searchLink.classList.remove("hidden");
-    logoutButton.classList.remove("hidden");
-  } else {
-    dashboardLink.classList.add("hidden");
-    searchLink.classList.add("hidden");
-    logoutButton.classList.add("hidden");
-  }
+  const showNavLinks = token && ["dashboard", "search"].includes(path);
+
+  dashboardLink.classList.toggle("hidden", !showNavLinks);
+  searchLink.classList.toggle("hidden", !showNavLinks);
+  logoutButton.classList.toggle("hidden", !token);
 }
 
 function highlightActiveNav() {
   const path = window.location.hash.replace(/^#\/?/, "") || "home";
   document.querySelectorAll("nav a.nav-link").forEach((link) => {
     const hrefPath = link.getAttribute("href").replace(/^#\/?/, "") || "home";
-    if (hrefPath === path) {
-      link.classList.add("active");
-    } else {
-      link.classList.remove("active");
-    }
+    link.classList.toggle("active", hrefPath === path);
   });
 }
 
 function route(path) {
+  if (checkAndHandleToken()) return;
+
   const cleanPath = path.replace(/^#\/?/, "") || "home";
-  document
-    .querySelectorAll(".view")
-    .forEach((view) => view.classList.add("hidden"));
+  document.querySelectorAll(".view").forEach((view) => view.classList.add("hidden"));
   const targetView = document.getElementById(cleanPath + "-view");
   if (targetView) {
     targetView.classList.remove("hidden");
-    if (
-      window.location.hash !== `#${cleanPath}` &&
-      window.location.hash !== `#/${cleanPath}`
-    ) {
-      window.location.hash = cleanPath;
-    }
+    window.location.hash = cleanPath;
     updateLinkVisibility();
     highlightActiveNav();
 
     if (cleanPath === "dashboard") {
+      document.getElementById("dashboard-title").textContent = `Olá ${currentUsername}, veja seu dashboard`;
       loadBooks();
+    } else if (cleanPath === "home") {
+      const token = localStorage.getItem("token");
+      const authDiv = document.getElementById("home-authenticated");
+      const guestDiv = document.getElementById("home-unauthenticated");
+
+      if (token) {
+        authDiv.classList.remove("hidden");
+        guestDiv.classList.add("hidden");
+        document.getElementById("home-welcome").textContent = `Olá ${currentUsername},`;
+      } else {
+        authDiv.classList.add("hidden");
+        guestDiv.classList.remove("hidden");
+      }
     } else if (cleanPath === "search") {
       document.getElementById("search-query").value = "";
       document.getElementById("search-results").innerHTML = "";
     }
-  } else {
-    console.error(`View not found for path: ${cleanPath}`);
   }
 }
 
 window.addEventListener("load", () => {
-  const hash = window.location.hash.replace(/^#\/?/, "") || "home";
-  route(hash);
+  const token = localStorage.getItem("token");
+  if (token && !isTokenExpired(token)) {
+    currentUsername = localStorage.getItem("username");
+  }
+  route(window.location.hash);
 });
 
 window.addEventListener("hashchange", () => {
-  const path = window.location.hash.replace(/^#\/?/, "") || "home";
-  route(path);
+  route(window.location.hash);
 });
 
 document.getElementById("nav-logout").addEventListener("click", () => {
   localStorage.removeItem("token");
+  currentUsername = null;
   updateLinkVisibility();
   route("home");
 });
 
 document.getElementById("home-cta").addEventListener("click", () => {
   const token = localStorage.getItem("token");
-  if (token) {
-    route("dashboard");
-  } else {
-    route("login");
-  }
+  route(token ? "dashboard" : "login");
 });
 
-// Cadastro
-const registerForm = document.getElementById("register-form");
-registerForm?.addEventListener("submit", async (e) => {
+// === FORMULÁRIOS ===
+document.getElementById("register-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const body = {
+    username: document.getElementById("register-username").value,
     email: document.getElementById("register-email").value,
     password: document.getElementById("register-password").value,
   };
@@ -101,17 +123,11 @@ registerForm?.addEventListener("submit", async (e) => {
   });
 
   const data = await res.json();
-  if (res.ok) {
-    alert(data.message);
-    route("login");
-  } else {
-    alert(data.message || "Erro ao registrar");
-  }
+  alert(data.message);
+  if (res.ok) route("login");
 });
 
-// Login
-const loginForm = document.getElementById("login-form");
-loginForm?.addEventListener("submit", async (e) => {
+document.getElementById("login-form")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const body = {
     email: document.getElementById("login-email").value,
@@ -127,13 +143,14 @@ loginForm?.addEventListener("submit", async (e) => {
   const data = await res.json();
   if (res.ok) {
     localStorage.setItem("token", data.access_token);
-    route("dashboard");
+    localStorage.setItem("username", data.username);
+    currentUsername = data.username;
+    route("home");
   } else {
     alert(data.message || "Erro ao fazer login");
   }
 });
 
-// Buscar livros
 const searchForm = document.getElementById("search-form");
 searchForm?.addEventListener("submit", async (e) => {
   e.preventDefault();

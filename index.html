@@ -9,91 +9,102 @@
   <body>
     <header>
       <nav>
-        <a href="#/" id="nav-home" class="nav-logo">
+        <a href="#/" class="nav-logo">
           <img src="images/logo.png" alt="BookSync" />
         </a>
         <div class="nav-actions">
           <a href="#/dashboard" id="dashboard-link" class="nav-link hidden">Dashboard</a>
-          <a href="#/search" id="search-link" class="nav-link hidden">Buscar livros</a>
-          <a href="#" id="nav-logout" class="btn-logout hidden">Sair</a>
+          <a href="#/search" id="search-link" class="nav-link hidden">Buscar Livros</a>
+          <button id="nav-logout" class="btn-logout hidden">Logout</button>
         </div>
       </nav>
     </header>
 
     <main>
+      <!-- HOME -->
       <section id="home-view" class="view">
-        <h1>Bem-vindo ao BookSync 📚</h1>
-        <p>Gerencie seus livros com facilidade.</p>
-        <button id="home-cta">Comece agora</button>
-      </section>
 
+  <h1 id="home-title">Bem-vindo ao BookSync 📚</h1>
+  <p>Gerencie seus livros com facilidade.</p>
+
+
+  <div id="home-authenticated" class="hidden">
+    <p id="home-welcome"></p>
+    <button onclick="route('dashboard')">Ver meu Dashboard</button>
+    <button onclick="route('search')">Buscar Livros</button>
+  </div>
+
+  <div id="home-unauthenticated">
+    <button id="home-cta">Começar agora</button>
+  </div>
+</section>
+
+      <!-- LOGIN -->
       <section id="login-view" class="view hidden">
         <h2>Login</h2>
         <form id="login-form">
-          <input type="email" id="login-email" placeholder="Email" required />
-          <input type="password" id="login-password" placeholder="Senha" required />
+          <input type="email" id="login-email" placeholder="Email" required autocomplete="email" />
+          <input type="password" id="login-password" placeholder="Senha" required autocomplete="current-password" />
           <button type="submit">Entrar</button>
         </form>
-        <p style="margin-top: 1rem;">Não tem uma conta? <a href="#/register">Cadastre-se aqui</a></p>
+        <p>Não tem conta? <a href="#/register">Cadastre-se</a></p>
       </section>
 
+      <!-- REGISTER -->
       <section id="register-view" class="view hidden">
         <h2>Cadastro</h2>
         <form id="register-form">
-          <input type="email" id="register-email" placeholder="Email" required />
-          <input type="password" id="register-password" placeholder="Senha" required />
+          <input type="text" id="register-username" placeholder="Usuário" required />
+          <input type="email" id="register-email" placeholder="Email" required autocomplete="email" />
+          <input type="password" id="register-password" placeholder="Senha" required autocomplete="new-password" />
           <button type="submit">Cadastrar</button>
         </form>
-        <p style="margin-top: 1rem;">Já tem uma conta? <a href="#/login">Faça login</a></p>
+        <p>Já tem conta? <a href="#/login">Faça login</a></p>
       </section>
 
+      <!-- DASHBOARD -->
       <section id="dashboard-view" class="view hidden">
-        <h2>Meus livros avaliados</h2>
-        <div id="book-list" class="book-list"></div>
+        <h2 id="dashboard-title">Olá , veja seu dashboard</h2>
+        <div id="book-list"></div>
       </section>
 
+      <!-- SEARCH -->
       <section id="search-view" class="view hidden">
         <h2>Buscar livros</h2>
         <form id="search-form">
-          <input type="text" id="search-query" placeholder="Buscar livros..." />
+          <input type="text" id="search-query" placeholder="Digite o nome do livro..." />
           <button type="submit">Buscar</button>
         </form>
         <div id="search-results"></div>
       </section>
-    </main>
 
-    <!-- Modal Avaliação -->
-    <div id="rating-modal" class="modal hidden">
-      <div class="modal-content">
-        <h3>Avalie o livro</h3>
-        <form id="rating-form">
-          <label>Nota:</label>
-          <div id="star-rating" class="star-container">
-            <span class="star" data-value="1">★</span>
-            <span class="star" data-value="2">★</span>
-            <span class="star" data-value="3">★</span>
-            <span class="star" data-value="4">★</span>
-            <span class="star" data-value="5">★</span>
-          </div>
-          <input type="hidden" id="rating-score" name="rating" required />
-
-          <label for="rating-comment">Comentário:</label>
-          <textarea id="rating-comment" name="comment" rows="3" required></textarea>
-
-          <label for="rating-status">Status:</label>
-          <select id="rating-status" name="status" required>
-            <option value="">Selecione</option>
-            <option value="lido">Lido</option>
-            <option value="lendo">Lendo</option>
-          </select>
-
-          <div class="modal-buttons">
-            <button type="submit">Salvar</button>
-            <button type="button" id="rating-cancel">Cancelar</button>
-          </div>
-        </form>
+      <!-- MODAL AVALIAÇÃO -->
+      <div id="rating-modal" class="modal hidden">
+        <div class="modal-content">
+          <h3>Avaliação</h3>
+          <form id="rating-form">
+            <div id="star-rating">
+              <span class="star" data-value="1">★</span>
+              <span class="star" data-value="2">★</span>
+              <span class="star" data-value="3">★</span>
+              <span class="star" data-value="4">★</span>
+              <span class="star" data-value="5">★</span>
+            </div>
+            <textarea id="rating-comment" placeholder="Comentário"></textarea>
+            <select id="rating-status">
+              <option value="">Selecione status</option>
+              <option value="lendo">Lendo</option>
+              <option value="lido">Lido</option>
+            </select>
+            <input type="hidden" id="rating-score" />
+            <div class="modal-buttons">
+              <button type="submit">Salvar</button>
+              <button type="button" id="rating-cancel">Cancelar</button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </main>
 
     <script src="app.js"></script>
   </body>
