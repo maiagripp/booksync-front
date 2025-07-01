@@ -186,7 +186,7 @@ searchForm?.addEventListener("submit", async (e) => {
         <img src="${
           item.volumeInfo.imageLinks
             ? item.volumeInfo.imageLinks.thumbnail
-            : "https://via.placeholder.com/100"
+            : "images/book_placeholder.png"
         }" alt="${item.volumeInfo.title}" />
         <button onclick="saveBook('${
           item.id
@@ -308,7 +308,7 @@ async function loadBooks() {
 
       card.innerHTML = `
   <h4>${book.title}</h4>
-  <img src="${book.image || "https://via.placeholder.com/100"}" alt="${
+  <img src="${book.image || "images/book_placeholder.png"}" alt="${
         book.title
       }" />
   <p>Status: <span class="status-text ${book.status}">${book.status}</span> 

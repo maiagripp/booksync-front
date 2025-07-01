@@ -33,7 +33,7 @@
 
 ```
 git clone https://github.com/maiagripp/booksync-front
-cd booksync
+cd booksync-front
 ```
 
 ⚠️ O frontend foi feito para funcionar com a API rodando em http://127.0.0.1:5000/api.
