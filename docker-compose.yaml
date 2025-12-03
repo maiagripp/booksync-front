@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  backend:
+    image: maiagripp/booksync-api:latest
+    container_name: booksync-backend
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build: .
+    container_name: booksync-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend

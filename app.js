@@ -1,4 +1,4 @@
-const apiBaseUrl = "http://127.0.0.1:5000/api";
+const apiBaseUrl = "http://localhost:5000/api";
 
 let currentBookToSave = null;
 let editingBookId = null;
