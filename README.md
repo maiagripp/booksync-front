@@ -49,7 +49,7 @@ Esta opção sobe tanto o Frontend quanto o Backend automaticamente. Certifique-
 
 1. Execute o comando:
    ```bash
-   docker-compose up
+   docker compose up
    ```
 O Docker irá:
 
