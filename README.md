@@ -8,7 +8,7 @@
 
 O projeto segue a arquitetura de **API Gateway/Proxy (Cenário 1.1)**, onde o Backend centraliza a comunicação com o banco de dados e serviços externos.
 
-![Arquitetura do Projeto BookSync](images/architeture.png)
+![Arquitetura do Projeto BookSync](images/arquitetura_booksync.png)
 
 *(O Front-end comunica-se exclusivamente com a API Principal, garantindo segurança e tratamento de dados no servidor).*
 
